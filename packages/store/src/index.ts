@@ -67,6 +67,7 @@ export {
 	type StoreBeforeDeleteHandler,
 	type StoreOperationCompleteHandler,
 } from './lib/StoreSideEffects'
+export { persistToByteStream } from './lib/stream'
 
 registerTldrawLibraryVersion(
 	(globalThis as any).TLDRAW_LIBRARY_NAME,
