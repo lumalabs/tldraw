@@ -14,7 +14,9 @@ import {
 	TLBaseShape,
 	TLEditorComponents,
 	TLPointerEventInfo,
+	TLShape,
 	TLShapeId,
+	TLShapePartial,
 	TLShapeUtilCanBindOpts,
 	TLUiComponents,
 	TLUiOverrides,
@@ -30,8 +32,14 @@ import {
 } from 'tldraw'
 import 'tldraw/tldraw.css'
 
+declare module '@tldraw/tlschema' {
+	export interface GlobalShapePropsMap {
+		pin: PinShape
+   }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-type PinShape = TLBaseShape<'pin', {}>
+type PinShape = TLBaseShape<'pin', {}> // TODO: doublecheck if this doesnt miss { x?: number; y?: number }
 
 const offsetX = -16
 const offsetY = -26
@@ -240,15 +248,16 @@ class PinBindingUtil extends BindingUtil<PinBinding> {
 			}
 		}
 
-		const updates = []
+		const updates: TLShapePartial< Extract<TLShape, { props: { x?: number; y?: number } }>>[] = []
 		for (const [shapeId, position] of currentPositions) {
 			const delta = Vec.Sub(position, initialPositions.get(shapeId)!)
 			if (delta.len2() <= 0.01) continue
 
 			const newPosition = this.editor.getPointInParentSpace(shapeId, position)
+			// discuss: this doesn't work because there are no builtin shapes with x and y
 			updates.push({
 				id: shapeId,
-				type: this.editor.getShape(shapeId)!.type,
+				type: this.editor.getShape<Extract<TLShape, { props: { x?: number; y?: number } }>>(shapeId)!.type,
 				x: newPosition.x,
 				y: newPosition.y,
 			})

@@ -143,7 +143,8 @@ export async function putExcalidrawContent(
 						align,
 						dash: getDash(element),
 						fill: getFill(element),
-					},
+						// TODO: missing growY, scale, labelColor, font, verticalAlign
+					} as any,
 				})
 				break
 			}
@@ -165,7 +166,8 @@ export async function putExcalidrawContent(
 								})),
 							},
 						],
-					},
+						// TODO: fill, isComplete, isClosed, isPen, scale
+					} as any,
 				})
 				break
 			}
@@ -192,7 +194,8 @@ export async function putExcalidrawContent(
 								})
 							),
 						},
-					},
+						// TODO: missing scale
+					} as any,
 				})
 
 				break
@@ -231,7 +234,8 @@ export async function putExcalidrawContent(
 						end: { x: end[0], y: end[1] },
 						arrowheadEnd: arrowheadsToArrowheadTypes[element.endArrowhead] ?? 'none',
 						arrowheadStart: arrowheadsToArrowheadTypes[element.startArrowhead] ?? 'none',
-					},
+						// TODO: missing labelColor, fill, font, labelPosition, and 2 more
+					} as any,
 				})
 
 				if (startTargetId) {
@@ -281,7 +285,8 @@ export async function putExcalidrawContent(
 						color: colorsToColors[element.strokeColor] ?? 'black',
 						richText: toRichText(element.text),
 						textAlign: textAlignToTextAlignTypes[element.textAlign],
-					},
+						// TODO: missing w, autoSize
+					} as any,
 				})
 				break
 			}
@@ -313,7 +318,8 @@ export async function putExcalidrawContent(
 						w: element.width,
 						h: element.height,
 						assetId,
-					},
+						// TODO: playing, url, crop, flipX, and 2 more
+					} as any,
 				})
 			}
 		}

@@ -361,6 +361,7 @@ export function getCropBox<T extends ShapeWithCrop>(
 		x: newPoint.x,
 		y: newPoint.y,
 		props: {
+			...shape.props, // double-check: is this desired? the alternative would be to make the return props Partial but then perhaps the return type should still very much require crop props so not every prop should be made optional
 			w: tempBox.w,
 			h: tempBox.h,
 			crop: newCrop,

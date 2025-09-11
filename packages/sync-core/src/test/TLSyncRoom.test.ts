@@ -169,7 +169,7 @@ describe('TLSyncRoom', () => {
 
 		const room = new TLSyncRoom({
 			schema,
-			snapshot: makeSnapshot([...records, oldArrow], {
+			snapshot: makeSnapshot([...records, oldArrow as any], { // discuss: old shape is not compatible with the new one here
 				schema: oldSerializedSchema,
 			}),
 		})

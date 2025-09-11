@@ -95,8 +95,8 @@ export function PdfEditor({ pdf }: { pdf: Pdf }) {
 					const indexes = getIndicesBetween(undefined, lowestIndex, shapes.length)
 					editor.updateShapes(
 						shapes.map((shape, i) => ({
+							...shape, // discuss: this might be tricky to understand for newcomers but u need to spread this to distribute the result over the union. It would be an interesting experiment to fix this in TS based on available discriminator key
 							id: shape.id,
-							type: shape.type,
 							isLocked: shape.isLocked,
 							index: indexes[i],
 						}))

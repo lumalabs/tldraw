@@ -52,12 +52,19 @@ export type TLDefaultShape =
  * @public */
 export type TLUnknownShape = TLBaseShape<string, object>
 
+export interface GlobalShapePropsMap { // TLRegisteredShapes
+	// including it should validate augmentations but it might mess up with consumers
+	// [key: string]: TLBaseShape<string, object>
+}
+
+type Values<T> = T[keyof T];
+
 /**
  * The set of all shapes that are available in the editor, including unknown shapes.
  *
  * @public
  */
-export type TLShape = TLDefaultShape | TLUnknownShape
+export type TLShape = TLDefaultShape | Values<GlobalShapePropsMap> // discuss: because this is a union... any/unknown value might wreck havoc on this
 
 /** @public */
 export type TLShapePartial<T extends TLShape = TLShape> = T extends T
@@ -70,7 +77,7 @@ export type TLShapePartial<T extends TLShape = TLShape> = T extends T
 	: never
 
 /** @public */
-export type TLShapeId = RecordId<TLUnknownShape>
+export type TLShapeId = RecordId<TLShape>
 
 /** @public */
 export type TLParentId = TLPageId | TLShapeId
@@ -81,7 +88,7 @@ export const rootShapeVersions = createMigrationIds('com.tldraw.shape', {
 	HoistOpacity: 2,
 	AddMeta: 3,
 	AddWhite: 4,
-} as const)
+})
 
 /** @public */
 export const rootShapeMigrations = createRecordMigrationSequence({

@@ -4,6 +4,7 @@ import {
 	TLDefaultFontStyle,
 	TLDefaultHorizontalAlignStyle,
 	TLDefaultVerticalAlignStyle,
+	TLShape,
 	TLShapeId,
 } from '@tldraw/editor'
 import React from 'react'
@@ -15,7 +16,7 @@ import { useEditablePlainText } from './useEditablePlainText'
 /** @public */
 export interface PlainTextLabelProps {
 	shapeId: TLShapeId
-	type: string
+	type: Extract<TLShape, { props: { text: string } }>["type"] // discuss: none of the builtin shapes support plain text
 	font: TLDefaultFontStyle
 	fontSize: number
 	lineHeight: number

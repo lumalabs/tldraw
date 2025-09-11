@@ -120,6 +120,7 @@ export {
 	type TLShapeId,
 	type TLShapePartial,
 	type TLUnknownShape,
+	type GlobalShapePropsMap
 } from './records/TLShape'
 export {
 	type RecordProps,

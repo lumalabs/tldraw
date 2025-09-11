@@ -117,7 +117,7 @@ export interface TldrawEditorBaseProps {
 	/**
 	 * An array of shape utils to use in the editor.
 	 */
-	shapeUtils?: readonly TLAnyShapeUtilConstructor[]
+	shapeUtils?: readonly TLAnyShapeUtilConstructor[] // we could make it required
 
 	/**
 	 * An array of binding utils to use in the editor.

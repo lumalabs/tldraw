@@ -27,7 +27,7 @@ import { TLResizeHandle } from '../types/selection-types'
 
 /** @public */
 export interface TLShapeUtilConstructor<
-	T extends TLUnknownShape,
+	T extends TLShape,
 	U extends ShapeUtil<T> = ShapeUtil<T>,
 > {
 	new (editor: Editor): U
@@ -42,7 +42,7 @@ export interface TLShapeUtilConstructor<
  *
  * @public
  */
-export interface TLShapeUtilCanBindOpts<Shape extends TLUnknownShape = TLUnknownShape> {
+export interface TLShapeUtilCanBindOpts<Shape extends TLShape = TLShape> {
 	/** The type of shape referenced by the `fromId` of the binding. */
 	fromShapeType: string
 	/** The type of shape referenced by the `toId` of the binding. */
@@ -50,6 +50,8 @@ export interface TLShapeUtilCanBindOpts<Shape extends TLUnknownShape = TLUnknown
 	/** The type of binding. */
 	bindingType: string
 }
+
+// TODO: should the above become more strict?
 
 /**
  * Options passed to {@link ShapeUtil.canBeLaidOut}.
@@ -79,7 +81,7 @@ export interface TLShapeUtilCanvasSvgDef {
 }
 
 /** @public */
-export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
+export abstract class ShapeUtil<Shape extends TLShape = TLShape> {
 	/** Configure this shape utils {@link ShapeUtil.options | `options`}. */
 	static configure<T extends TLShapeUtilConstructor<any, any>>(
 		this: T,
@@ -128,7 +130,7 @@ export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
 	 * }
 	 * ```
 	 */
-	static props?: RecordProps<TLUnknownShape>
+	static props?: RecordProps<TLUnknownShape> // TODO: decide what to do here
 
 	/**
 	 * Migrations allow you to make changes to a shape's props over time. Read the

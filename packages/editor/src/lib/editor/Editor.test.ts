@@ -12,6 +12,13 @@ import {
 } from '../..'
 import { Editor } from './Editor'
 
+// TODO: double-check if this gets stripped away in dist files
+declare module '@tldraw/tlschema' {
+    export interface GlobalShapePropsMap {
+        "my-custom-shape": ICustomShape
+    }
+}
+
 type ICustomShape = TLBaseShape<
 	'my-custom-shape',
 	{

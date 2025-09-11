@@ -498,7 +498,7 @@ function DebugSvgCopy({ id, mode }: { id: TLShapeId; mode: 'img' | 'iframe' }) {
 			const renderId = Math.random()
 			latest = renderId
 
-			const isSingleFrame = editor.isShapeOfType(id, 'frame')
+			const isSingleFrame = editor.isShapeOfType(id, 'frame') // id usage here
 			const padding = isSingleFrame ? 0 : 10
 			let bounds = editor.getShapePageBounds(id)
 			if (!bounds) return

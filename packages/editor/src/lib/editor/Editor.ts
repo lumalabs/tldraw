@@ -55,7 +55,6 @@ import {
 	TLStore,
 	TLStoreSnapshot,
 	TLUnknownBinding,
-	TLUnknownShape,
 	TLVideoAsset,
 	createBindingId,
 	createShapeId,
@@ -974,7 +973,7 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @public
 	 */
-	shapeUtils: { readonly [K in string]?: ShapeUtil<TLUnknownShape> }
+	shapeUtils: { readonly [K in string]?: ShapeUtil<TLShape> } // this could be derived from TLShape, i think?
 
 	styleProps: { [key: string]: Map<StyleProp<any>, string> }
 
@@ -993,8 +992,8 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @public
 	 */
-	getShapeUtil<S extends TLUnknownShape>(shape: S | TLShapePartial<S>): ShapeUtil<S>
-	getShapeUtil<S extends TLUnknownShape>(type: S['type']): ShapeUtil<S>
+	getShapeUtil<S extends TLShape>(shape: S | TLShapePartial<S>): ShapeUtil<S>
+	getShapeUtil<S extends TLShape>(type: S['type']): ShapeUtil<S>
 	getShapeUtil<T extends ShapeUtil>(type: T extends ShapeUtil<infer R> ? R['type'] : string): T
 	getShapeUtil(arg: string | { type: string }) {
 		const type = typeof arg === 'string' ? arg : arg.type
@@ -1008,8 +1007,8 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @param shape - A shape, shape partial, or shape type.
 	 */
-	hasShapeUtil<S extends TLUnknownShape>(shape: S | TLShapePartial<S>): boolean
-	hasShapeUtil<S extends TLUnknownShape>(type: S['type']): boolean
+	hasShapeUtil(shape: TLShape | TLShapePartial<TLShape>): boolean
+	hasShapeUtil(type: TLShape['type']): boolean
 	hasShapeUtil<T extends ShapeUtil>(
 		type: T extends ShapeUtil<infer R> ? R['type'] : string
 	): boolean
@@ -5501,14 +5500,14 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @public
 	 */
-	isShapeOfType<T extends TLUnknownShape>(shape: TLUnknownShape, type: T['type']): shape is T
-	isShapeOfType<T extends TLUnknownShape>(
-		shapeId: TLUnknownShape['id'],
-		type: T['type']
-	): shapeId is T['id']
-	isShapeOfType<T extends TLUnknownShape>(
-		arg: TLUnknownShape | TLUnknownShape['id'],
-		type: T['type']
+	isShapeOfType<T extends TLShape>(shape: TLShape, type: T["type"]): shape is T // TODO: derive generic from `type`
+	isShapeOfType<T extends TLShape = TLShape>(
+		shapeId: TLShapeId,
+		type: T['type'] // mainly kept to avoid removing type args everywhere
+	): boolean // `shapeId is T['id']` didn't make much sense to me
+	isShapeOfType(
+		arg: TLShape | TLShapeId,
+		type: TLShape["type"]
 	) {
 		const shape = typeof arg === 'string' ? this.getShape(arg) : arg
 		if (!shape) return false
@@ -7769,8 +7768,8 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @public
 	 */
-	canCreateShape<T extends TLUnknownShape>(
-		shape: OptionalKeys<TLShapePartial<T>, 'id'> | T['id']
+	canCreateShape(
+		shape: OptionalKeys<TLShapePartial<TLShape>, 'id'> | TLShape['id']
 	): boolean {
 		return this.canCreateShapes([shape])
 	}
@@ -7782,8 +7781,8 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @public
 	 */
-	canCreateShapes<T extends TLUnknownShape>(
-		shapes: (T['id'] | OptionalKeys<TLShapePartial<T>, 'id'>)[]
+	canCreateShapes(
+		shapes: (TLShape['id'] | OptionalKeys<TLShapePartial<TLShape>, 'id'>)[]
 	): boolean {
 		return shapes.length + this.getCurrentPageShapeIds().size <= this.options.maxShapesPerPage
 	}
@@ -7801,7 +7800,7 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @public
 	 */
-	createShape<T extends TLUnknownShape>(shape: OptionalKeys<TLShapePartial<T>, 'id'>): this {
+	createShape<TShape extends TLShape>(shape: OptionalKeys<TLShapePartial<TShape>, 'id'>): this {
 		this.createShapes([shape])
 		return this
 	}
@@ -7819,7 +7818,7 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @public
 	 */
-	createShapes<T extends TLUnknownShape>(shapes: OptionalKeys<TLShapePartial<T>, 'id'>[]): this {
+	createShapes<TShape extends TLShape = TLShape>(shapes: OptionalKeys<TLShapePartial<TShape>, 'id'>[]): this {
 		if (!Array.isArray(shapes)) {
 			throw Error('Editor.createShapes: must provide an array of shapes or shape partials')
 		}
@@ -8316,7 +8315,7 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @public
 	 */
-	updateShape<T extends TLUnknownShape>(partial: TLShapePartial<T> | null | undefined) {
+	updateShape<T extends TLShape = TLShape>(partial: TLShapePartial<T> | null | undefined) {
 		this.updateShapes([partial])
 		return this
 	}
@@ -8333,7 +8332,8 @@ export class Editor extends EventEmitter<TLEventMap> {
 	 *
 	 * @public
 	 */
-	updateShapes<T extends TLUnknownShape>(partials: (TLShapePartial<T> | null | undefined)[]) {
+	updateShapes<T extends TLShape>(partials: (TLShapePartial<T> | null | undefined)[]) {
+		// https://www.typescriptlang.org/play/?#code/KYDwDg9gTgLgBDAnmYcBSBnCA7AagQwBsBXVAXnS2wAUoBLAWzpjoDdUAfSnAQSinyI4XTDgDyAIwBWwAMYwA3AChQkWAmSpRNekxbs4FCRAiFg+bMLjZihQlYwx62AOZWbDCcCjLV0eEgo3Nh8AkIU2gQkwADaALrKdNgw3gBm+LJaVJIy8nAA3kpwcDEA1sCIAFxwjs4ucdWRRKRWxNgAJsCpScDtygC+SkkpUOmZcABC+BjAAEpy0O0APEVwACqaAHL4DKigKR0YNU5JLgA0qwCS7XD7wIdw87KL10sAqtil2BAA7thPiwAfBdAQVVlBzO0cIQhHR2tVrspihD8FDsDCNChtrtqhssTtgAMlIFUB8vr9-gsoDcKFMZgDqUtaqczo8qe1XmTvn8Ge1AYDlCS2c9qa9ZrcQAd2kcuRTeaCKMzXHAAGQFOAAfQ1JK11XF-UFmnWABkAMoAC3wKGuhmFL2WazNlpQAqUxKNjotVuA1HwsDoRCWawlUqOnud5BNXpdtuDdwea1WAH4wcU03A4bind7Eat0yTcTEAEQkosJPNpsBQCBgDBJ6q+-2BtbFqs1jBl13p4q7GD4etwRssZvF3v4TtItP9VWDv3DwhLMR6IOskuaItWItwjdcItt2s7uBFsdF-mrarYYDsHxu4ZpDKoR104DR4BBo3x6XHOqs2jtkP3F+EDSHIMCAqsn5HM+vJLEWGARkWrLhjmfKppiwC4pok4gBexCeN4k5VNYeFeDeyIQH2LA4Lh+FkXAAD09EZh0oAIixIAANIVKsjFwGAfr3DA1xZo2gnXKsdAYMaECyOU8JwMYpjmNgk68TWGTMERjpiPxsiaXiwCrPuGANtWtaTmOjTZCB8hEu6QTIUEZCrFwT7TC+EawX61Y-Ih6rtHQUDVEWZipDAh5FvQLjmuFcD9OBxSucaz6vrBsh+u0fn5AgzBmNUSpuPFyhKJ0siEAJcDPNgjg1BGJlRhG8TFaV5UQnAqRtPIdA4HAxBgO0+ApK+GBBgBCbZi6AAURlzgGhD1ZNjk+rNzaglwNh2K0LHdJe7QAJTxBce3VKwEBwsVfUDUNdXTcU8HehgAB0DBWpNk33Sge2GKChTphCMDEFAli-d2ma1d6j1whc3boflEaPSS0PdsZ1QgzDzyENAwUSOVsmIRWxT9EjhOTv0e1HcoQA
 		const compactedPartials: TLShapePartial<T>[] = Array(partials.length)
 
 		for (let i = 0, n = partials.length; i < n; i++) {
@@ -10766,7 +10766,9 @@ function alertMaxShapes(editor: Editor, pageId = editor.getCurrentPageId()) {
 
 function applyPartialToRecordWithProps<
 	T extends UnknownRecord & { type: string; props: object; meta: object },
->(prev: T, partial?: Partial<T> & { props?: Partial<T['props']> }): T {
+	// props have to be omitted because otherwise we end up intersecting partial and non-partial props and that... is like just having non-partial props given `{ foo?: string } & { foo: string }` is equivalent-ish to `{ foo: string }`
+	// that in turn creates assignability issues because the parameter is meant to be trully partial here but yet it ends up accepting non-partial props
+>(prev: T, partial?: T extends T ? (Omit<Partial<T>, 'props'> & { props?: Partial<T['props']> }) : never): T {
 	if (!partial) return prev
 	let next = null as null | T
 	const entries = Object.entries(partial)

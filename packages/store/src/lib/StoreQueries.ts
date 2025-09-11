@@ -39,7 +39,7 @@ export type RSIndex<
  * the record store.
  * @public
  */
-export class StoreQueries<R extends UnknownRecord> {
+export class StoreQueries<R extends UnknownRecord> { // is this going to be improved? is store public?
 	constructor(
 		private readonly recordMap: AtomMap<IdOf<R>, R>,
 		private readonly history: Atom<number, RecordsDiff<R>>
