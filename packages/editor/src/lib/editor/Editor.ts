@@ -63,6 +63,7 @@ import {
 	isPageId,
 	isShapeId,
 } from '@tldraw/tlschema'
+import { TLGridShape } from '@tldraw/tlschema/src/shapes/TLFrameShape'
 import {
 	FileHelpers,
 	IndexKey,
@@ -5222,6 +5223,7 @@ export class Editor extends EventEmitter<TLEventMap> {
 			// Check labels first
 			if (
 				this.isShapeOfType<TLFrameShape>(shape, 'frame') ||
+				this.isShapeOfType<TLGridShape>(shape, 'grid') ||
 				(this.isShapeOfType<TLArrowShape>(shape, 'arrow') && shape.props.text.trim()) ||
 				((this.isShapeOfType<TLNoteShape>(shape, 'note') ||
 					(this.isShapeOfType<TLGeoShape>(shape, 'geo') && shape.props.fill === 'none')) &&
