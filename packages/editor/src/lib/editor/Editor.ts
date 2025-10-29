@@ -25,6 +25,7 @@ import {
 	TLAsset,
 	TLAssetId,
 	TLAssetPartial,
+	TLBaseShape,
 	TLBinding,
 	TLBindingCreate,
 	TLBindingId,
@@ -63,7 +64,6 @@ import {
 	isPageId,
 	isShapeId,
 } from '@tldraw/tlschema'
-import { TLGridShape } from '@tldraw/tlschema/src/shapes/TLFrameShape'
 import {
 	FileHelpers,
 	IndexKey,
@@ -181,6 +181,16 @@ import {
 	TLSvgExportOptions,
 } from './types/misc-types'
 import { TLAdjacentDirection, TLResizeHandle } from './types/selection-types'
+
+export interface TLGridShapeProps {
+	w: number
+	h: number
+	name: string
+	grid_id: string
+	layout: Record<string, any>
+}
+
+export type TLGridShape = TLBaseShape<'grid', TLGridShapeProps>
 
 /** @public */
 export type TLResizeShapeOptions = Partial<{
@@ -5236,7 +5246,7 @@ export class Editor extends EventEmitter<TLEventMap> {
 				}
 			}
 
-			if (this.isShapeOfType(shape, 'frame')) {
+			if (this.isShapeOfType(shape, 'frame') || this.isShapeOfType(shape, 'grid')) {
 				// On the rare case that we've hit a frame (not its label), test again hitInside to be forced true;
 				// this prevents clicks from passing through the body of a frame to shapes behind it.
 
@@ -9156,7 +9166,9 @@ export class Editor extends EventEmitter<TLEventMap> {
 		for (const shape of this.getSelectedShapes()) {
 			if (lowestDepth === 0) break
 
-			const isFrame = this.isShapeOfType<TLFrameShape>(shape, 'frame')
+			const isFrame =
+				this.isShapeOfType<TLFrameShape>(shape, 'frame') ||
+				this.isShapeOfType<TLGridShape>(shape, 'grid')
 			const ancestors = this.getShapeAncestors(shape)
 			if (isFrame) ancestors.push(shape)
 
@@ -9194,9 +9206,17 @@ export class Editor extends EventEmitter<TLEventMap> {
 				} else {
 					if (rootShapeIds.length === 1) {
 						const rootShape = shapes.find((s) => s.id === rootShapeIds[0])!
+
+						const isParentFrame =
+							this.isShapeOfType<TLFrameShape>(parent, 'frame') ||
+							this.isShapeOfType<TLGridShape>(parent, 'grid')
+						const isRootFrame =
+							this.isShapeOfType<TLFrameShape>(rootShape, 'frame') ||
+							this.isShapeOfType<TLGridShape>(rootShape, 'grid')
+
 						if (
-							this.isShapeOfType<TLFrameShape>(parent, 'frame') &&
-							this.isShapeOfType<TLFrameShape>(rootShape, 'frame') &&
+							isParentFrame &&
+							isRootFrame &&
 							rootShape.props.w === parent?.props.w &&
 							rootShape.props.h === parent?.props.h
 						) {
@@ -9371,11 +9391,15 @@ export class Editor extends EventEmitter<TLEventMap> {
 				const onlyRoot = rootShapes[0] as TLFrameShape
 				// If the old bounds are in the viewport...
 				// todo: replace frame references with shapes that can accept children
-				if (this.isShapeOfType<TLFrameShape>(onlyRoot, 'frame')) {
+				if (
+					this.isShapeOfType<TLFrameShape>(onlyRoot, 'frame') ||
+					this.isShapeOfType<TLGridShape>(onlyRoot, 'grid')
+				) {
 					while (
 						this.getShapesAtPoint(point).some(
 							(shape) =>
-								this.isShapeOfType<TLFrameShape>(shape, 'frame') &&
+								(this.isShapeOfType<TLFrameShape>(shape, 'frame') ||
+									this.isShapeOfType<TLGridShape>(shape, 'grid')) &&
 								shape.props.w === onlyRoot.props.w &&
 								shape.props.h === onlyRoot.props.h
 						)

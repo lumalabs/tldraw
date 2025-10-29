@@ -14,7 +14,6 @@ export interface TLFrameShapeProps {
 
 /** @public */
 export type TLFrameShape = TLBaseShape<'frame', TLFrameShapeProps>
-export type TLGridShape = TLBaseShape<'grid', TLFrameShapeProps>
 
 /** @public */
 export const frameShapeProps: RecordProps<TLFrameShape> = {
